@@ -1,10 +1,10 @@
-AVRMCU = atmega328
+AVRMCU = atmega328p
 F_CPU = 16000000
-ISPPORT = /dev/ttyUSB0
+ISPPORT = /dev/ttyACM0
 
 VERSION = 0.1
 
-HEADERS = uart.h servos.h pumps.h
+HEADERS = uart.h servos.h pumps.h config.h
 SRC = main.c uart.c servos.c pumps.c
 TARGET = pumpcontrol-$(AVRMCU)
 OBJDIR = bin

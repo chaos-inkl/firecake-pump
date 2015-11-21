@@ -51,7 +51,7 @@ void pumps_run() {
  */
 void pump_enter_setup(uint8_t i) {
     uart_debug("Entering setup");
-    servo_set_pos(pumps[i].servo, pumps[i].servo_dispense_pos);
+    servo_set_min(pumps[i].servo);
 
     // Start stepper and setup direction if pump is not empty already
     if(*pumps[i].empty_pin | pumps[i].empty_mask) {
@@ -94,7 +94,7 @@ void pump_do_empty(uint8_t i) {
 void pump_enter_fill(uint8_t i) {
     uart_debug("Entering fill");
     pumps[i].state = PUMP_FILL;
-    servo_set_pos(pumps[i].servo, pumps[i].servo_fill_pos);
+    servo_set_min(pumps[i].servo);
     *pumps[i].dir_port &= ~pumps[i].dir_mask;
 }
 
@@ -144,7 +144,7 @@ void pump_do_full(uint8_t i) {
 void pump_enter_dispense(uint8_t i) {
     uart_debug("Entering dispense");
     pumps[i].state = PUMP_DISPENSE;
-    servo_set_pos(pumps[i].servo, pumps[i].servo_dispense_pos);
+    servo_set_max(pumps[i].servo);
     *pumps[i].dir_port |= pumps[i].dir_mask;
 }
 

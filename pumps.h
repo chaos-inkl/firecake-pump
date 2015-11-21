@@ -31,8 +31,6 @@ struct Pump {
     volatile uint8_t *step_ddr;
 
     uint8_t servo;
-    uint8_t servo_fill_pos;
-    uint8_t servo_dispense_pos;
 };
 
 static const uint8_t PumpCount = 2;

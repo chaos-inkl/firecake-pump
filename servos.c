@@ -1,10 +1,28 @@
 #include "servos.h"
 
-void servo_init() {
+#include <util/delay.h>
 
+void servos_init() {
+	for(uint8_t i = 0; i < ServoCount; i++) {
+		*servos[i].ddr |= servos[i].mask;
+		*servos[i].port &= servos[i].mask;
+	}
 }
 
-void servo_set_pos(uint8_t servo, uint8_t pos) {
+void servo_set_min(uint8_t i) {
+	for(uint8_t t = 0; t < 20; t++) {
+		*servos[i].port |= servos[i].mask;
+		_delay_us(900);
+		*servos[i].port &= ~servos[i].mask;
+		_delay_ms(15);
+	}
+}
 
-
+void servo_set_max(uint8_t i) {
+	for(uint8_t t = 0; t < 20; t++) {
+		*servos[i].port |= servos[i].mask;
+		_delay_ms(2);
+		*servos[i].port &= ~servos[i].mask;
+		_delay_ms(15);
+	}
 }
