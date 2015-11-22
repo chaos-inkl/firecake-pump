@@ -4,8 +4,8 @@ ISPPORT = /dev/ttyACM0
 
 VERSION = 0.1
 
-HEADERS = uart.h servos.h pumps.h config.h
-SRC = main.c uart.c servos.c pumps.c
+HEADERS = uart.h servos.h pumps.h config.h steppers.h
+SRC = main.c uart.c servos.c pumps.c steppers.c
 TARGET = pumpcontrol-$(AVRMCU)
 OBJDIR = bin
 

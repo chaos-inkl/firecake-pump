@@ -5,17 +5,16 @@
 #include <avr/io.h>
 
 struct ServoConfig {
-    uint8_t mask;
-    volatile uint8_t *port;
-    volatile uint8_t *ddr;
+    const uint8_t mask;
+    volatile uint8_t *const port;
+    volatile uint8_t *const ddr;
 };
 
-static const struct ServoConfig servos[2] = {
-		{(1 << PB1), &PORTB, &DDRB},
-		{(1 << PB2), &PORTB, &DDRB}
+static const struct ServoConfig servos[1] = {
+		{(1 << PD5), &PORTD, &DDRD},
 };
 
-static const uint8_t ServoCount = 2;
+static const uint8_t ServoCount = 1;
 
 
 

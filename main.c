@@ -2,53 +2,76 @@
 #include "servos.h"
 #include "pumps.h"
 #include "config.h"
-
+#include "steppers.h"
 
 
 int main(void) {
     uart_init();
     servos_init();
-    /*
+    steppers_init();
     pumps_init();
 
     *idle_ddr &= ~idle_mask;
+    *idle_port |= idle_mask;
     *setup_ddr &= ~setup_mask;
+    *setup_port |= setup_mask;
     *ready_ddr |= ready_mask;
-    */
+
+
+    sei();
+
     uart_puts("PumpControl 0.1 ready\n\r");
 
-    /*while(1) {
+    uint8_t active_pump = 0;
+
+    while(1) {
         pumps_run();
 
-        if(*setup_pin & setup_mask) {
+        // Setup is active low
+        if(!(*setup_pin & setup_mask)) {
             for(uint8_t i = 0; i < PumpCount; i++) {
-                pump_enter_setup(i);
+                if(pump_states[i] != PUMP_SETUP) {
+                     pump_enter_setup(i);
+                }
             }
         }
 
-        // Signal if there is pump ready for dispensing
-        uint8_t ready = 0;
-        for(uint8_t i = 0; i < PumpCount; i++) {
-            if(pumps[i].state == PUMP_FULL) {
-                ready = 1;
-                break;
+        /*
+         * Check if we need a new active pump
+         * if full -> nice we've got a fresh one
+         * if dispense -> still some stuff left in this one
+         */
+        if(pump_states[active_pump] != PUMP_FULL || pump_states[active_pump] != PUMP_DISPENSE) {
+            for(uint8_t i = 0; i < PumpCount; i++) {
+                if(pump_states[i] == PUMP_FULL) {
+                    active_pump = i;
+                    break;
+                }
+            }
+
+            if(pump_states[active_pump] == PUMP_FULL) {
+                pump_enter_dispense(active_pump);
+                *ready_port |= ~(ready_mask);
+            }
+            else {
+                *ready_port &= ~(ready_mask);
             }
         }
-        if(ready) {
-            *ready_port |= ready_mask;
-        }
-        else {
-            *ready_port &= ~ready_mask;
-        }
 
-        //If we are idle, try to fill all pumps
+
+        /*
+         * If we are idle, try to fill all pumps
+         * If the active pump is also refilled, a other full one will be chosen
+         * in the next iteration.
+         */
         if(*idle_pin & idle_mask) {
             for(uint8_t i = 0; i < PumpCount; i++) {
-                if(pumps[i].state == PUMP_DISPENSE) {
+                if(pump_states[i] == PUMP_DISPENSE) {
+                    uart_debug("Idle state detected, refilling");
                     pump_enter_fill(i);
                 }
             }
         }
-    }*/
+    }
 
 }

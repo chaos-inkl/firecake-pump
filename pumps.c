@@ -2,31 +2,24 @@
 
 #include "uart.h"
 #include "servos.h"
+#include "steppers.h"
 
-struct Pump pumps[2];
+enum PumpState pump_states[1];
+uint32_t pump_wait_start[1];
 
 void pumps_init() {
     for(uint8_t i = 0; i < PumpCount; i++){
-        *pumps[i].empty_ddr &= ~pumps[i].empty_mask;
-        *pumps[i].full_ddr &= ~pumps[i].full_mask;
-
-        *pumps[i].dir_ddr |= pumps[i].dir_mask;
-        *pumps[i].step_ddr |= pumps[i].dir_mask;
-
-        pumps[i].state = PUMP_UNKNOWN;
+        pump_states[i] = PUMP_UNKNOWN;
     }
 }
 
 void pumps_run() {
     for(uint8_t i = 0; i < PumpCount; i++) {
-        switch(pumps[i].state) {
+        switch(pump_states[i]) {
             case PUMP_UNKNOWN:
                 break;
             case PUMP_SETUP:
                 pump_do_setup(i);
-                break;
-            case PUMP_EMPTY:
-                pump_do_empty(i);
                 break;
             case PUMP_FILL:
                 pump_do_fill(i);
@@ -51,41 +44,25 @@ void pumps_run() {
  */
 void pump_enter_setup(uint8_t i) {
     uart_debug("Entering setup");
-    servo_set_min(pumps[i].servo);
+    servo_set_max(pumps[i].servo);
 
     // Start stepper and setup direction if pump is not empty already
-    if(*pumps[i].empty_pin | pumps[i].empty_mask) {
-        pumps[i].state = PUMP_SETUP;
-        *pumps[i].dir_port |= pumps[i].dir_mask;
+    if(!stepper_at_max(i)) {
+        stepper_set_mode(pumps[i].stepper, STEPPER_INTERN);
+        stepper_set_dir(pumps[i].stepper, STEPPER_FORWARD);
+        pump_states[i] = PUMP_SETUP;
     }
     else {
-        pump_enter_empty(i);
+        pump_enter_fill(i);
     }
 }
 
 void pump_do_setup(uint8_t i) {
     // Wait for pump to become empty
-    if(*pumps[i].empty_pin | pumps[i].empty_mask) {
-        pump_enter_empty(i);
+    if(stepper_at_max(i)) {
+        pump_enter_fill(i);
     }
 }
-
-
-/*
- * Empty state
- * ===========
- * Marker state, does nothing
- */
-void pump_enter_empty(uint8_t i) {
-    uart_debug("Entering empty");
-    pumps[i].state = PUMP_EMPTY;
-}
-
-void pump_do_empty(uint8_t i) {
-    // We are empty so we just go to filling
-    pump_enter_fill(i);
-}
-
 
 /*
  * Filling sate
@@ -93,14 +70,16 @@ void pump_do_empty(uint8_t i) {
  */
 void pump_enter_fill(uint8_t i) {
     uart_debug("Entering fill");
-    pumps[i].state = PUMP_FILL;
+    pump_states[i] = PUMP_FILL;
+
     servo_set_min(pumps[i].servo);
-    *pumps[i].dir_port &= ~pumps[i].dir_mask;
+    stepper_set_mode(pumps[i].stepper, STEPPER_INTERN);
+    stepper_set_dir(pumps[i].stepper, STEPPER_BACKWARD);
 }
 
 void pump_do_fill(uint8_t i) {
     // Wait for pump to become full
-    if(*pumps[i].full_pin | pumps[i].full_mask) {
+    if(stepper_at_min(pumps[i].stepper)) {
         pump_enter_wait(i);
     }
 }
@@ -113,13 +92,17 @@ void pump_do_fill(uint8_t i) {
 
 void pump_enter_wait(uint8_t i) {
     uart_debug("Entering wait");
-    pumps[i].state = PUMP_WAIT;
-    //TODO: Save time here
+    pump_states[i] = PUMP_WAIT;
+
+    stepper_set_mode(pumps[i].stepper, STEPPER_OFF);
+
+    pump_wait_start[i] = now();
 }
 
 void pump_do_wait(uint8_t i) {
-    //TODO: Check time here
-    pump_enter_full(i);
+    if(since(pump_wait_start[i]) > 30) {
+        pump_enter_full(i);
+    }
 }
 
 
@@ -130,7 +113,7 @@ void pump_do_wait(uint8_t i) {
  */
 void pump_enter_full(uint8_t i) {
     uart_debug("Entering full");
-    pumps[i].state = PUMP_FULL;
+    pump_states[i] = PUMP_FULL;
 }
 
 void pump_do_full(uint8_t i) {
@@ -143,14 +126,16 @@ void pump_do_full(uint8_t i) {
  */
 void pump_enter_dispense(uint8_t i) {
     uart_debug("Entering dispense");
-    pumps[i].state = PUMP_DISPENSE;
+    pump_states[i] = PUMP_DISPENSE;
     servo_set_max(pumps[i].servo);
-    *pumps[i].dir_port |= pumps[i].dir_mask;
+
+    stepper_set_mode(pumps[i].stepper, STEPPER_EXTERN);
+    stepper_set_dir(pumps[i].stepper, STEPPER_FORWARD);
 }
 
 void pump_do_dispense(uint8_t i) {
     // Wait for pump to become empty
-    if(*pumps[i].empty_pin | pumps[i].empty_mask) {
-        pump_enter_empty(i);
+    if(stepper_at_max(pumps[i].stepper)) {
+        pump_enter_fill(i);
     }
 }
