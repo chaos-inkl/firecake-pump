@@ -32,8 +32,8 @@ static const struct StepperConfig steppers[] = {
 	{
 		(1 << PD4), &PORTD, &DDRD,			// Step
 		(1 << PD5), &PORTD, &DDRD,			// Dir
-		(1 << PD6), &PINC, &PORTC, &DDRC,	// Limit min
-		(1 << PD7), &PINC, &PORTC, &DDRC,	// Limit max
+		(1 << PD6), &PIND, &PORTD, &DDRD,	// Limit min
+		(1 << PD7), &PIND, &PORTD, &DDRD,	// Limit max
 	},
 	{
 		(1 << PB2), &PORTB, &DDRB,			// Step
@@ -49,7 +49,7 @@ static const uint8_t external_step_mask = (1 << PD2);
 static volatile uint8_t *const external_step_pin = &PIND;
 static volatile uint8_t *const external_step_ddr = &DDRD;
 
-static const uint8_t external_dir_mask = (1 << PD2);
+static const uint8_t external_dir_mask = (1 << PD3);
 static volatile uint8_t *const external_dir_pin = &PIND;
 static volatile uint8_t *const external_dir_ddr = &DDRD;
 

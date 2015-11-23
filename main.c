@@ -51,11 +51,18 @@ int main(void) {
 
             if(pump_states[active_pump] == PUMP_FULL) {
                 pump_enter_dispense(active_pump);
-                *ready_port |= ~(ready_mask);
             }
-            else {
-                *ready_port &= ~(ready_mask);
-            }
+        }
+
+        /*
+         * We are ready if we picked a new active pump and set it to dispense,
+         * or if the old one still has stuff left in it and is in dispense.
+         */
+        if(pump_states[active_pump] == PUMP_DISPENSE) {
+            *ready_port |= ready_mask;
+        }
+        else {
+            *ready_port &= ~(ready_mask);
         }
 
 

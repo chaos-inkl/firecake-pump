@@ -31,6 +31,7 @@ void pumps_run() {
                 pump_do_wait(i);
                 break;
             case PUMP_DISPENSE:
+                pump_do_dispense(i);
                 break;
             default:
                 break;
