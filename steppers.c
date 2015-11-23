@@ -19,8 +19,14 @@ enum StepperDirs stepper_dirs[2];
 
 void steppers_init(void) {
 	TCNT0 = preload;	// Preload for 32 ticks to overflow
-	TIMSK0 |= (1 << TOIE0);
+	TIMSK0 |= (1 << TOIE0); // Enable Interrupt
 	TCCR0B = (1 << CS02);	// Prescaler 256
+
+	EICRA |= (1 << ISC00); // Any level change at INT0 generates a Interrupt
+	EIMSK |= (1 << INT0); // Enable interrupt
+
+	*external_step_ddr &= ~(external_step_mask);
+	*external_dir_ddr &= ~(external_dir_mask);
 
 	for(uint8_t i = 0; i < StepperCount; i++) {
 		*steppers[i].step_ddr |= steppers[i].step_mask;
@@ -80,3 +86,28 @@ ISR(TIMER0_OVF_vect) {
 		ticks = 0;
 	}
 };
+
+ISR(INT0_vect) {
+	for(uint8_t i = 0; i < StepperCount; i++) {
+		if(stepper_modes[i] == STEPPER_EXTERN) {
+			// "Inverted" becasue high means move backward
+			if(*external_dir_pin & external_dir_mask) {
+				stepper_set_dir(i, STEPPER_BACKWARD);
+			}
+			else {
+				stepper_set_dir(i, STEPPER_FORWARD);
+			}
+
+			//Forward step signal if not at endstop
+			if((stepper_dirs[i] == STEPPER_BACKWARD && !stepper_at_min(i)) ||
+				(stepper_dirs[i] == STEPPER_FORWARD && !stepper_at_max(i))) {
+				if(*external_step_pin & external_step_mask) {
+					*steppers[i].step_port |= steppers[i].step_mask;
+				}
+				else {
+					*steppers[i].step_port &= ~steppers[i].step_mask;
+				}
+			}
+		}
+	}
+}
