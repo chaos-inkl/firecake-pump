@@ -18,10 +18,11 @@ enum PumpState {
 };
 
 static const uint8_t PumpCount = 1;
-extern enum PumpState pump_states[1];
+extern enum PumpState pump_states[];
 
-static const struct Pump pumps[1] = {
-    {0,0}
+static const struct Pump pumps[2] = {
+    {0,0},
+    {1,1}
 };
 
 void pumps_init(void);

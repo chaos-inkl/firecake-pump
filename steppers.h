@@ -30,10 +30,16 @@ struct StepperConfig {
 
 static const struct StepperConfig steppers[] = {
 	{
-		(1 << PD2), &PORTD, &DDRD,
-		(1 << PD3), &PORTD, &DDRD,
-		(1 << PC0), &PINC, &PORTC, &DDRC,
-		(1 << PC1), &PINC, &PORTC, &DDRC,
+		(1 << PD4), &PORTD, &DDRD,			// Step
+		(1 << PD5), &PORTD, &DDRD,			// Dir
+		(1 << PD6), &PINC, &PORTC, &DDRC,	// Limit min
+		(1 << PD7), &PINC, &PORTC, &DDRC,	// Limit max
+	},
+	{
+		(1 << PB2), &PORTB, &DDRB,			// Step
+		(1 << PB3), &PORTB, &DDRB,			// Dir
+		(1 << PB4), &PINB, &PORTB, &DDRB,	// Limit min
+		(1 << PB5), &PINB, &PORTB, &DDRB,	// Limit max
 	}
 };
 

@@ -10,8 +10,9 @@ struct ServoConfig {
     volatile uint8_t *const ddr;
 };
 
-static const struct ServoConfig servos[1] = {
-		{(1 << PD5), &PORTD, &DDRD},
+static const struct ServoConfig servos[] = {
+		{(1 << PC0), &PORTC, &DDRC},
+        {(1 << PC1), &PORTC, &DDRC}
 };
 
 static const uint8_t ServoCount = 1;

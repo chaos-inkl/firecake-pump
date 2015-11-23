@@ -4,8 +4,8 @@
 #include "servos.h"
 #include "steppers.h"
 
-enum PumpState pump_states[1];
-uint32_t pump_wait_start[1];
+enum PumpState pump_states[2];
+uint32_t pump_wait_start[2];
 
 void pumps_init() {
     for(uint8_t i = 0; i < PumpCount; i++){

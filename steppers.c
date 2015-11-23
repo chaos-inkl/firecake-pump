@@ -14,8 +14,8 @@ const uint8_t preload = 240;
 uint16_t ticks;
 uint32_t timestamp;
 
-enum StepperModes stepper_modes[1];
-enum StepperDirs stepper_dirs[1];
+enum StepperModes stepper_modes[2];
+enum StepperDirs stepper_dirs[2];
 
 void steppers_init(void) {
 	TCNT0 = preload;	// Preload for 32 ticks to overflow
