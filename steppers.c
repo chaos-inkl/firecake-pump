@@ -27,19 +27,20 @@ void steppers_init(void) {
 
 	*external_step_ddr &= ~(external_step_mask);
 	*external_dir_ddr &= ~(external_dir_mask);
+	*steppers_disable_ddr |= steppers_disable_mask;
 
 	for(uint8_t i = 0; i < StepperCount; i++) {
 		*steppers[i].step_ddr |= steppers[i].step_mask;
 		*steppers[i].dir_ddr |= steppers[i].dir_mask;
 
-		*steppers[i].limit_min_ddr &= ~(steppers[i].limit_min_mask);
-		*steppers[i].limit_min_port |= (steppers[i].limit_min_mask);
+		*steppers[i].limit_min_ddr &= ~steppers[i].limit_min_mask;
+		*steppers[i].limit_min_port |= steppers[i].limit_min_mask;
 
-		*steppers[i].limit_max_ddr &= ~(steppers[i].limit_max_mask);
-		*steppers[i].limit_max_port |= (steppers[i].limit_max_mask);
+		*steppers[i].limit_max_ddr &= ~steppers[i].limit_max_mask;
+		*steppers[i].limit_max_port |= steppers[i].limit_max_mask;
 
-		stepper_modes[i] = STEPPER_OFF;
-		stepper_dirs[i] = STEPPER_BACKWARD;
+		stepper_set_mode(i, STEPPER_OFF);
+		stepper_set_dir(i, STEPPER_BACKWARD);
 	}
 
 	ticks = 0;
@@ -62,6 +63,19 @@ void stepper_set_dir(uint8_t stepper, enum StepperDirs dir) {
 void stepper_set_mode(uint8_t stepper, enum StepperModes mode) {
 	if(stepper < StepperCount) {
 		stepper_modes[stepper] = mode;
+	}
+	uint8_t disable = 1;
+	for(uint8_t i = 0; i < StepperCount; i++) {
+		if(stepper_modes[stepper] != STEPPER_OFF) {
+			disable = 0;
+			break;
+		}
+	}
+	if(disable) {
+		*steppers_disable_port |= steppers_disable_mask;
+	}
+	else {
+		*steppers_disable_port &= ~steppers_disable_mask;
 	}
 }
 

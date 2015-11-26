@@ -53,6 +53,9 @@ static const uint8_t external_dir_mask = (1 << PD3);
 static volatile uint8_t *const external_dir_pin = &PIND;
 static volatile uint8_t *const external_dir_ddr = &DDRD;
 
+static const uint8_t steppers_disable_mask = (1 << PB0);
+static volatile uint8_t *const steppers_disable_port = &PORTB;
+static volatile uint8_t *const steppers_disable_ddr = &DDRB;
 
 
 void steppers_init(void);
