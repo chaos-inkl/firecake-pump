@@ -22,6 +22,7 @@ int main(void) {
 
     uart_puts("PumpControl 0.1 ready\n\r");
 
+
     uint8_t active_pump = 0;
 
     while(1) {
@@ -41,17 +42,19 @@ int main(void) {
          * if full -> nice we've got a fresh one
          * if dispense -> still some stuff left in this one
          */
-        if(pump_states[active_pump] != PUMP_FULL || pump_states[active_pump] != PUMP_DISPENSE) {
+        if(pump_states[active_pump] != PUMP_FULL && pump_states[active_pump] != PUMP_DISPENSE) {
             for(uint8_t i = 0; i < PumpCount; i++) {
                 if(pump_states[i] == PUMP_FULL) {
                     active_pump = i;
                     break;
                 }
             }
+        }
 
-            if(pump_states[active_pump] == PUMP_FULL) {
-                pump_enter_dispense(active_pump);
-            }
+        // We've selected a new active pump, now we need to start it
+        if(pump_states[active_pump] == PUMP_FULL) {
+            uart_debug_pump(active_pump, "is new acitve pump");
+            pump_enter_dispense(active_pump);
         }
 
         /*

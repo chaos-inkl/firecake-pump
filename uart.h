@@ -65,4 +65,18 @@ static inline void uart_debug(char *data) {
 	}
 }
 
+static inline void uart_debug_pump(uint8_t i, char *data) {
+
+	if(debug) {
+        char buffer[4]; // 8bit as 3 digits and a terminating zero
+
+        itoa(i,buffer,10);
+		uart_puts("[debug ");
+        uart_puts(buffer);
+        uart_puts("] ");
+		uart_puts(data);
+		uart_puts("\n\r");
+	}
+}
+
 #endif

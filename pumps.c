@@ -44,11 +44,11 @@ void pumps_run() {
  * ================
  */
 void pump_enter_setup(uint8_t i) {
-    uart_debug("Entering setup");
+    uart_debug_pump(i, "Entering setup");
     servo_set_max(pumps[i].servo);
 
     // Start stepper and setup direction if pump is not empty already
-    if(!stepper_at_max(i)) {
+    if(!stepper_at_max(pumps[i].stepper)) {
         stepper_set_mode(pumps[i].stepper, STEPPER_INTERN);
         stepper_set_dir(pumps[i].stepper, STEPPER_FORWARD);
         pump_states[i] = PUMP_SETUP;
@@ -60,7 +60,7 @@ void pump_enter_setup(uint8_t i) {
 
 void pump_do_setup(uint8_t i) {
     // Wait for pump to become empty
-    if(stepper_at_max(i)) {
+    if(stepper_at_max(pumps[i].stepper)) {
         pump_enter_fill(i);
     }
 }
@@ -70,7 +70,7 @@ void pump_do_setup(uint8_t i) {
  * ============
  */
 void pump_enter_fill(uint8_t i) {
-    uart_debug("Entering fill");
+    uart_debug_pump(i, "Entering fill");
     pump_states[i] = PUMP_FILL;
 
     servo_set_min(pumps[i].servo);
@@ -92,7 +92,7 @@ void pump_do_fill(uint8_t i) {
  */
 
 void pump_enter_wait(uint8_t i) {
-    uart_debug("Entering wait");
+    uart_debug_pump(i, "Entering wait");
     pump_states[i] = PUMP_WAIT;
 
     stepper_set_mode(pumps[i].stepper, STEPPER_OFF);
@@ -113,7 +113,7 @@ void pump_do_wait(uint8_t i) {
  * Maker state not much happening here
  */
 void pump_enter_full(uint8_t i) {
-    uart_debug("Entering full");
+    uart_debug_pump(i, "Entering full");
     pump_states[i] = PUMP_FULL;
 }
 
@@ -126,7 +126,7 @@ void pump_do_full(uint8_t i) {
  * ==========
  */
 void pump_enter_dispense(uint8_t i) {
-    uart_debug("Entering dispense");
+    uart_debug_pump(i, "Entering dispense");
     pump_states[i] = PUMP_DISPENSE;
     servo_set_max(pumps[i].servo);
 

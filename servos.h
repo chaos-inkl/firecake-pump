@@ -15,7 +15,7 @@ static const struct ServoConfig servos[] = {
         {(1 << PC1), &PORTC, &DDRC}
 };
 
-static const uint8_t ServoCount = 1;
+static const uint8_t ServoCount = 2;
 
 
 

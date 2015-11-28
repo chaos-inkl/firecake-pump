@@ -43,7 +43,7 @@ static const struct StepperConfig steppers[] = {
 	}
 };
 
-static const uint8_t StepperCount = 1;
+static const uint8_t StepperCount = 2;
 
 static const uint8_t external_step_mask = (1 << PD2);
 static volatile uint8_t *const external_step_pin = &PIND;
