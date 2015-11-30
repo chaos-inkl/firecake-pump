@@ -24,3 +24,36 @@ Pin assignments
 | analog input 3 | PC3         | Idle signal      |
 | analog input 4 | PC4         | Setup Button     |
 | analog input 5 | PC5         | Ready signal     |
+
+Idle and Setup are active low
+
+
+Notes for Marlin
+----------------
+RAMPS 1.4 see http://reprap.org/mediawiki/images/archive/c/ca/20131210184132!Arduinomega1-4connectors.png
+
+* D16 is idle
+* D17 is setup
+* D23 is ready
+
+Procedures
+-----------
+
+*Setup:*
+```
+M42 P17 S0
+M42 P17 S255
+```
+
+*G-Coder header:*
+```
+M42 P16 S255
+M42 P17 S255
+
+M226 P23 S-1
+```
+
+*G-Code footer:*
+```
+M42 P16 S0
+```

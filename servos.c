@@ -7,6 +7,10 @@ void servos_init() {
 		*servos[i].ddr |= servos[i].mask;
 		*servos[i].port &= servos[i].mask;
 	}
+
+	for(uint8_t i = 0; i < ServoCount; i++) {
+		servo_set_min(i);
+	}
 }
 
 void servo_set_min(uint8_t i) {
