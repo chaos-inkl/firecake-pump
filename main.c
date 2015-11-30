@@ -40,27 +40,28 @@ int main(void) {
             }
         }
 
-        /*
-         * Check if we need a new active pump
-         * If we are idle we simply don't care about active pumps (idle low active)
-         * if full -> nice we've got a fresh one
-         * if dispense -> still some stuff left in this one
-         */
-        if((*idle_pin & idle_mask) &&
-            pump_states[active_pump] != PUMP_FULL &&
-            pump_states[active_pump] != PUMP_DISPENSE) {
-            for(uint8_t i = 0; i < PumpCount; i++) {
-                if(pump_states[i] == PUMP_FULL) {
-                    active_pump = i;
-                    break;
+        // We only activate extruders if we are idle
+        if(*idle_pin & idle_mask) {
+            /*
+             * Check if we need a new active pump
+             * if full -> nice we've got a fresh one
+             * if dispense -> still some stuff left in this one
+             */
+            if(pump_states[active_pump] != PUMP_FULL &&
+                pump_states[active_pump] != PUMP_DISPENSE) {
+                for(uint8_t i = 0; i < PumpCount; i++) {
+                    if(pump_states[i] == PUMP_FULL) {
+                        active_pump = i;
+                        break;
+                    }
                 }
             }
-        }
 
-        // We've selected a new active pump, now we need to start it
-        if(pump_states[active_pump] == PUMP_FULL) {
-            uart_debug_pump(active_pump, "is new acitve pump");
-            pump_enter_dispense(active_pump);
+            // We've selected a new active pump, now we need to start it
+            if(pump_states[active_pump] == PUMP_FULL) {
+                uart_debug_pump(active_pump, "is new acitve pump");
+                pump_enter_dispense(active_pump);
+            }
         }
 
         /*

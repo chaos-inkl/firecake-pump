@@ -19,6 +19,4 @@ static uint8_t ready_mask = (1 << PC5);
 static volatile uint8_t *const ready_port = &PORTC;
 static volatile uint8_t *const ready_ddr = &DDRC;
 
-
-
 #endif

@@ -18,6 +18,8 @@ enum PumpState {
 };
 
 static const uint8_t PumpCount = 2;
+static const uint8_t FillWait = 60;
+
 extern enum PumpState pump_states[];
 
 static const struct Pump pumps[2] = {

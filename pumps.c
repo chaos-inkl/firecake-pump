@@ -101,7 +101,7 @@ void pump_enter_wait(uint8_t i) {
 }
 
 void pump_do_wait(uint8_t i) {
-    if(since(pump_wait_start[i]) > 30) {
+    if(since(pump_wait_start[i]) > FillWait) {
         pump_enter_full(i);
     }
 }
